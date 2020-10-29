@@ -1,0 +1,5 @@
+# JUCE Library
+JuceLibraryCode/
+
+# Build
+build/
