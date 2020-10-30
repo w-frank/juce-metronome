@@ -6,11 +6,15 @@ MainComponent::MainComponent()
 
     startButton.setRadioGroupId(1);
     startButton.setToggleState(false, juce::NotificationType::dontSendNotification);
+    startButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+    startButton.setEnabled(true);
     startButton.onClick = [this]() { startMetronome(); };
     addAndMakeVisible(startButton);
 
     stopButton.setRadioGroupId(1);
     stopButton.setToggleState(false, juce::NotificationType::dontSendNotification);
+    stopButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
+    stopButton.setEnabled(false);
     stopButton.onClick = [this]() { stopMetronome(); };
     addAndMakeVisible(stopButton);
 
@@ -40,28 +44,30 @@ MainComponent::~MainComponent()
 void MainComponent::startMetronome()
 {
     metronomeState = MetronomeState::Started;
+    startButton.setEnabled(false);
+    stopButton.setEnabled(true);
 }
 
 void MainComponent::stopMetronome()
 {
     metronomeState = MetronomeState::Stopped;
+    startButton.setEnabled(true);
+    stopButton.setEnabled(false);
 }
 
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    metronome.prepareToPlay(sampleRate);
+    metronome.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
     bufferToFill.clearActiveBufferRegion();
 
-    auto bufferSize = bufferToFill.numSamples;
-
     if (metronomeState == MetronomeState::Started)
     {
-        metronome.countSamples(bufferSize);
+       metronome.getNextAudioBlock(bufferToFill);
     }
     else
     {
